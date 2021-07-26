@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  slack: circleci/slack@4.4.2
+  #slack: circleci/slack@4.4.2
   aws-cli: circleci/aws-cli@2.0.3
 #  ------------------------------------------------------------------------------------------------------------------------------------------
 #  defaults (like global variables dubstiuted below)
@@ -18,19 +18,6 @@ docansibl: &dok_ansible
     docker:
       - image: python:3.7-alpine3.11 
 
-slackvarfail: &slack_msg      
-          event: fail
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [{"type": "plain_text",
-                      "text": "Udapeople build STEP : ${MY_STEP_NAME} Failure #<< pipeline.number >> for << pipeline.project.git_url >> / << pipeline.git.branch >> ",
-                      "emoji": true }]
-                }
-              ]
-            } 
 #  ------------------------------------------------------------------------------------------------------------------------------------------
 #  list of parameters
 #  ------------------------------------------------------------------------------------------------------------------------------------------
@@ -65,6 +52,7 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.workflow_id>>
             aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
             aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.workflow_id>>
+            
 # ----------------------------------   to reverse the migration   --------------------------------------------------------------------------
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.    
@@ -84,10 +72,10 @@ commands:
                 apk add --update tar gzip curl nodejs npm
                 npm run migrations:revert
               fi
+              
+              
 #  ------------------------------------------------------------------------------------------------------------------------------------------
 #    Jobs list start from here    
-#
-#
 #  ------------------------------------------------------------------------------------------------------------------------------------------
 
 jobs:
@@ -99,36 +87,37 @@ jobs:
       MY_STEP_NAME: "Build frontend"
     steps:
       - checkout
-      - restore_cache:
-          keys: [frontend-build]
+      #- restore_cache:
+      #    keys: [frontend-build]
       - run:
           name: Build front-end
           working_directory: ./frontend
           command:             
             npm i
             npm run build                        
-      - save_cache:
-          paths: [frontend/node_modules]
-          key: frontend-build 
+      #- save_cache:
+      #    paths: [frontend/node_modules]
+      #    key: frontend-build 
 
 # -----------------------------  Build back end ----------------------
   build-backend:
     <<: *dok_node
     environment: 
-      MY_STEP_NAME: "Test frontend"
+      MY_STEP_NAME: "Build backend"
     steps:
       - checkout
-      - restore_cache:
-          keys: [backend-build]
+      #- restore_cache:
+      #    keys: [backend-build]
       - run:
           name: Back-end build
           working_directory: ./backend
           command:              
              npm i
              npm run build             
-      - save_cache:
-          paths: [backend/node_modules]
-          key: backend-build 
+      #- save_cache:
+      #    paths: [backend/node_modules]
+      #    key: backend-build 
+          
 # -----------------------------  Test front end  ----------------------
   test-frontend:
     <<: *dok_node
@@ -321,10 +310,10 @@ jobs:
             if [grep -q "executed successfully" migration_output.txt]
             then
               echo "DB migration was successful"
-              curl -H "Content-Type: text/plain" -H "token: 6fafc41a-e956-4316-abf9-6b4d6a306a94" --request PUT --data "db_success" https://api.memstash.io/values/migration_status_${CIRCLE_WORKFLOW_ID:0:7}
+              curl -H "Content-Type: text/plain" -H "token: 58c78a8b-64a1-4bd9-8527-e0f897b1d02a" --request PUT --data "db_success" https://api.memstash.io/values/migration_status_${CIRCLE_WORKFLOW_ID:0:7}
             else
               echo "DB migration failed, looks like already exists...moving on."
-              curl -H "Content-Type: text/plain" -H "token: 6fafc41a-e956-4316-abf9-6b4d6a306a94" --request PUT --data "db_failure" https://api.memstash.io/values/migration_status_${CIRCLE_WORKFLOW_ID:0:7}
+              curl -H "Content-Type: text/plain" -H "token: 58c78a8b-64a1-4bd9-8527-e0f897b1d02a" --request PUT --data "db_failure" https://api.memstash.io/values/migration_status_${CIRCLE_WORKFLOW_ID:0:7}
             fi
             echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"                    
       - destroy-environment:          
@@ -377,9 +366,7 @@ jobs:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"     
-      - slack/notify:
-          <<: *slack_msg 
-# -----------------------------  Deploy back-end  ----------------------------------                    
+ # -----------------------------  Deploy back-end  ----------------------------------                    
   deploy-backend:
     <<: *dok_ansible
     environment: 
@@ -487,10 +474,12 @@ jobs:
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
             printf '%s\n' "${STACKS[@]}"
+            
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --stack-name udapeople-prod-cloudfront
+              
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
@@ -509,8 +498,10 @@ jobs:
               export OldWorkflowID=$(aws cloudformation \
                 list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
                 --no-paginate --output text)
+                
               export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+                
               echo "Old Workflow ID: ${OldWorkflowID}"
               if [ "${OldWorkflowID}" != "<< pipeline.parameters.workflow-id >>" ]
               then
@@ -529,31 +520,31 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - scan-backend:
-          requires: [build-backend]
-      - deploy-infrastructure:
-          requires: [build-frontend, build-backend, test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-backend:
-          requires: [run-migrations]           
-      - deploy-frontend:
-          requires: [run-migrations, deploy-backend]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]            
+      #- test-frontend:
+      #    requires: [build-frontend]
+      #- test-backend:
+      #    requires: [build-backend]
+      #- scan-frontend:
+      #    requires: [build-frontend]
+      #- scan-backend:
+      #    requires: [build-backend]
+      #- deploy-infrastructure:
+      #    requires: [build-frontend, build-backend, test-frontend, test-backend, scan-frontend, scan-backend]
+      #    filters:
+      #      branches:
+      #        only: [master]
+      #- configure-infrastructure:
+      #    requires: [deploy-infrastructure]
+      #- run-migrations:
+      #    requires: [configure-infrastructure]
+      #- deploy-backend:
+      #    requires: [run-migrations]           
+      #- deploy-frontend:
+      #    requires: [run-migrations, deploy-backend]
+      #- smoke-test:
+      #    requires: [deploy-backend, deploy-frontend]
+      #- cloudfront-update:
+      #    requires: [smoke-test]            
       # - cleanup:
       #     requires: [cloudfront-update]
       #     context: slack-secrets
