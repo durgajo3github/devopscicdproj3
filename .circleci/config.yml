@@ -86,17 +86,17 @@ jobs:
       MY_STEP_NAME: "Build frontend"
     steps:
       - checkout
-      #- restore_cache:
-      #    keys: [frontend-build]
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: Build front-end
           working_directory: ./frontend
           command:             
             npm i
             npm run build                        
-      #- save_cache:
-      #    paths: [frontend/node_modules]
-      #    key: frontend-build 
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build 
 
 # -----------------------------  Build back end ----------------------
   build-backend:
@@ -105,17 +105,17 @@ jobs:
       MY_STEP_NAME: "Build backend"
     steps:
       - checkout
-      #- restore_cache:
-      #    keys: [backend-build]
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Back-end build
           working_directory: ./backend
           command: 
              npm i
              npm run build             
-      #- save_cache:
-      #    paths: [backend/node_modules]
-      #    key: backend-build 
+       - save_cache:
+           paths: [backend/node_modules]
+           key: backend-build 
           
 # -----------------------------  Test front end  ----------------------
   test-frontend:
