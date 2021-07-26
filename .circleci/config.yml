@@ -112,6 +112,7 @@ jobs:
           working_directory: ./backend
           command: |
             rm ./package-lock.json \
+            && npm install webpack-dev-server -g \
             && npm install --update-binary\
             && npm run build             
       - save_cache:
