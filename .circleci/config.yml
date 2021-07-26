@@ -110,11 +110,9 @@ jobs:
       - run:
           name: Back-end build
           working_directory: ./backend
-          command: |
-             rm -rf package-lock.json node_modules \
-             && npm install \
-             && npm cache clean --force \
-             && npm run build             
+          command: 
+            npm install 
+            npm run build             
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
