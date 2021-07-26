@@ -1,7 +1,6 @@
 version: 2.1
 
 orbs:
-  #slack: circleci/slack@4.4.2
   aws-cli: circleci/aws-cli@2.0.3
 #  ------------------------------------------------------------------------------------------------------------------------------------------
 #  defaults (like global variables dubstiuted below)
@@ -284,8 +283,7 @@ jobs:
             - project/backend
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
-      - slack/notify:
-          <<: *slack_msg                
+                      
 # -----------------------------  migration  -----------------------------------------            
   run-migrations:
     <<: *dok_node
@@ -343,7 +341,7 @@ jobs:
           command: |
             export API_URL=`cat ~/output.txt`
             echo "API_URL: $API_URL"
-            echo ENVIRONMENT=production > "frontend/.env"
+            echo ENVIRONMENT=production >> "frontend/.env"
             echo NODE_ENV=production >> "frontend/.env"
             echo API_URL=$API_URL >> "frontend/.env"
       - run:
@@ -547,5 +545,4 @@ workflows:
       #    requires: [smoke-test]            
       # - cleanup:
       #     requires: [cloudfront-update]
-      #     context: slack-secrets
-#  --------------------------  End of Job  ---------------------------------------- 
+      #  --------------------------  End of Job  ---------------------------------------- 
