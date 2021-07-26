@@ -111,7 +111,6 @@ jobs:
           name: Back-end build
           working_directory: ./backend
           command: 
-             npm cache verify
              npm i
              npm run build             
       #- save_cache:
