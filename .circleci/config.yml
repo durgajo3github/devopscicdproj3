@@ -111,8 +111,7 @@ jobs:
           name: Back-end build
           working_directory: ./backend
           command: |
-            npm cache clean \
-            && npm install -g npm@latest \
+            npm install -g npm@latest \
             && npm run build             
       - save_cache:
           paths: [backend/node_modules]
