@@ -111,8 +111,8 @@ jobs:
           name: Back-end build
           working_directory: ./backend
           command: | 
-            npm i \           
-            && npm cache clean --force \
+            npm cache clean \
+            && npm i \
             && npm run build             
       - save_cache:
           paths: [backend/node_modules]
