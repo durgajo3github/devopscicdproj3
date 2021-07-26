@@ -99,7 +99,7 @@ jobs:
           key: frontend-build 
 
 # -----------------------------  Build back end ----------------------
-   build-backend:
+  build-backend:
     <<: *dok_node
     environment: 
       MY_STEP_NAME: "Build backend"
