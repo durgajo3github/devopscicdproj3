@@ -111,9 +111,7 @@ jobs:
           name: Back-end build
           working_directory: ./backend
           command: |
-            rm ./package-lock.json \
-            && npm install webpack-dev-server -g \
-            && npm install --update-binary\
+            npm install --update-binary\
             && npm run build             
       - save_cache:
           paths: [backend/node_modules]
