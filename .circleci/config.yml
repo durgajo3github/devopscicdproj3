@@ -110,9 +110,8 @@ jobs:
       - run:
           name: Back-end build
           working_directory: ./backend
-          command: |
-            npm install --update-binary\
-            && npm run build             
+          command: 
+            npm run build             
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
