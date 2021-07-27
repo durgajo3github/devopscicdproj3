@@ -175,7 +175,7 @@ jobs:
           working_directory: ./frontend
           command: 
             npm i
-            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical
 
 # -----------------------------  Test back end for security ----------            
   scan-backend:
@@ -190,7 +190,7 @@ jobs:
           name: backend security check
           working_directory: ./backend
           command: 
-            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical
 
 #   -------------------------------------------------------------------------
 #                   AWS  INFRA. PART start from here
@@ -526,11 +526,11 @@ workflows:
           requires: [build-frontend]
       - scan-backend:
           requires: [build-backend]
-      #- deploy-infrastructure:
-      #    requires: [build-frontend, build-backend, test-frontend, test-backend, scan-frontend, scan-backend]
-      #    filters:
-      #      branches:
-      #        only: [master]
+      - deploy-infrastructure:
+          requires: [build-frontend, build-backend, test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
       #- configure-infrastructure:
       #    requires: [deploy-infrastructure]
       #- run-migrations:
