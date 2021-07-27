@@ -189,7 +189,8 @@ jobs:
       - run:
           name: backend security check
           working_directory: ./backend
-          command: 
+          command:
+            npm i --package-lock-only
             npm audit fix --audit-level=critical
 
 #   -------------------------------------------------------------------------
