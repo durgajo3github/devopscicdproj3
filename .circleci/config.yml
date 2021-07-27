@@ -124,8 +124,8 @@ jobs:
       MY_STEP_NAME: "Test frontend"
     steps:
       - checkout
-      #- restore_cache:
-      #    keys: [frontend-build]
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: Run tests with JUnit 
           working_directory: ./frontend
@@ -146,8 +146,8 @@ jobs:
       MY_STEP_NAME: "Test backend"    
     steps:
       - checkout
-      #- restore_cache:
-      #    keys: [backend-build]
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Run tests with JUnit
           working_directory: ./backend
@@ -522,10 +522,10 @@ workflows:
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
-      #- scan-frontend:
-      #    requires: [build-frontend]
-      #- scan-backend:
-      #    requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
       #- deploy-infrastructure:
       #    requires: [build-frontend, build-backend, test-frontend, test-backend, scan-frontend, scan-backend]
       #    filters:
