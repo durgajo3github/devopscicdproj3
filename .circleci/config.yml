@@ -250,11 +250,11 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["f9:48:2a:a5:28:e1:a7:1e:39:17:b5:b9:64:8d:42:18"]
-      #- attach_workspace:
-      #    at: ~/
-      #- restore_cache:
-      #    keys: [backend-build]
+          fingerprints: ["f9:99:18:39:6c:c4:06:a9:03:fa:f6:9a:60:ca:3a:dd"]
+      - attach_workspace:
+          at: ~/
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
@@ -278,12 +278,12 @@ jobs:
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml            
             cat backend/.env
             ls backend
-      #- persist_to_workspace:
-      #    root: ~/
-      #    paths:
-      #      - project/backend
-      #- destroy-environment:
-      #    workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
                       
 # -----------------------------  migration  -----------------------------------------            
   run-migrations:
@@ -375,7 +375,7 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - add_ssh_keys:
-          fingerprints: ["f9:48:2a:a5:28:e1:a7:1e:39:17:b5:b9:64:8d:42:18"]
+          fingerprints: ["f9:99:18:39:6c:c4:06:a9:03:fa:f6:9a:60:ca:3a:dd"]
       - attach_workspace:
           at: ~/
       - run: 
